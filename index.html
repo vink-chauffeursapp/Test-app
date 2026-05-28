@@ -2915,12 +2915,18 @@ function fsZoek(q) {
     el.innerHTML = '<p style="font-size:12px;color:#888;padding:8px;">Geen klanten gevonden.</p>';
     return;
   }
-  el.innerHTML = resultaten.map(function(k) {
-    return '<div onclick="fsSelecteerKlant('' + k.nr + '','' + k.naam.replace(/'/g,'\\'+''') + '')" ' +
+  // Gebruik data-attributen om aanhalingstekens-problemen te vermijden
+  el.innerHTML = resultaten.map(function(k, idx) {
+    return '<div class="fs-zoek-item" data-idx="' + idx + '" ' +
       'style="padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:6px;cursor:pointer;background:white;">' +
       '<div style="font-size:14px;font-weight:600;">' + k.naam + '</div>' +
       '<div style="font-size:12px;color:#888;">' + k.nr + '</div></div>';
   }).join('');
+  // Sla resultaten op en koppel click handlers
+  el.querySelectorAll('.fs-zoek-item').forEach(function(div) {
+    var idx = parseInt(div.getAttribute('data-idx'));
+    div.onclick = function() { fsSelecteerKlant(resultaten[idx].nr, resultaten[idx].naam); };
+  });
 }
 
 function fsSelecteerKlant(nr, naam) {
@@ -3000,7 +3006,11 @@ function fsRenderFotoPreview() {
       '</div>';
   }).join('');
   if (fsFotos.length < 3) {
-    container.innerHTML += '<div onclick="document.getElementById('fs-input-fotos').click()" style="border-radius:8px;border:2px dashed #e5e7eb;aspect-ratio:1;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:28px;color:#d1d5db;">+</div>';
+    var addDiv = document.createElement('div');
+    addDiv.style.cssText = 'border-radius:8px;border:2px dashed #e5e7eb;aspect-ratio:1;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:28px;color:#d1d5db;';
+    addDiv.textContent = '+';
+    addDiv.onclick = function() { document.getElementById('fs-input-fotos').click(); };
+    container.appendChild(addDiv);
   }
 }
 
